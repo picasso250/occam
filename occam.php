@@ -1,5 +1,8 @@
 <?php
 
+// 框架 奥卡姆的剃刀
+// 如无必要，毋增实体
+
 function echo_json($code, $msg = 'ok')
 {
     header('Content-Type: application/json; charset=utf-8');
@@ -10,11 +13,13 @@ function echo_json($code, $msg = 'ok')
     }
     echo json_encode($res);
 }
+
 function render($data = [])
 {
     extract($data);
     include "view/layout.html";
 }
+
 function run($router, $args)
 {
     header('Content-Type: text/html; charset=utf-8');
@@ -24,6 +29,7 @@ function run($router, $args)
     }
     return call_user_func_array($func, $args);
 }
+
 function get_router()
 {
     $REQUEST_URI = $_SERVER['REQUEST_URI'];
