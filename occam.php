@@ -3,6 +3,8 @@
 // 框架 奥卡姆的剃刀
 // 如无必要，毋增实体
 
+namespace Occam;
+
 function echo_json($code, $msg = 'ok')
 {
     header('Content-Type: application/json; charset=utf-8');
