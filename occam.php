@@ -19,7 +19,7 @@ function echo_json($code, $msg = 'ok')
 function render($data = [], $_file_ = null)
 {
     extract($data);
-    include "view/layout.html";
+    include dirname(__DIR__)."/view/layout.html";
 }
 
 function run($router, $args)
