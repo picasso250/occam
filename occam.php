@@ -64,7 +64,7 @@ function _get_router($module, $path)
     if (preg_match('#^/'.$module.'([a-z][\w]*)/?$#i', $path, $matches)) {
         $router = $matches[1];
         return [$router, []];
-    } elseif (preg_match('#^/'.$module.'([a-z][\w]*)/(\d+)$#i', $path, $matches)) {
+    } elseif (preg_match('#^/'.$module.'([a-z][\w]*)/(\w+)$#i', $path, $matches)) {
         $router = $matches[1];
         $args[] = $matches[2];
         return [$router, $args];
