@@ -16,36 +16,66 @@ function echo_json($code, $msg = 'ok')
     echo json_encode($res);
 }
 
-function render($data = [])
+function render($data = [], $_file_ = null)
 {
     extract($data);
-    include "view/layout.html";
+    include dirname(__DIR__)."/view/layout.html";
 }
 
 function run($router, $args)
 {
     header('Content-Type: text/html; charset=utf-8');
-    $func = "\\action\\$router";
+    $router = str_replace('/', '\\', $router);
+    $func = "\\Action\\$router";
+    $func_method = $func.'_'.strtolower($_SERVER['REQUEST_METHOD']);
+    if (function_exists($func_method)) {
+        return call_user_func_array($func_method, $args);
+    }
     if (!function_exists($func)) {
-        $func = "\\action\\page404";
+        $func = "\\Action\\page404";
     }
     return call_user_func_array($func, $args);
 }
 
-function get_router()
+function get_router($module_list = [])
 {
     $REQUEST_URI = $_SERVER['REQUEST_URI'];
     $path = explode('?', $REQUEST_URI)[0];
     $args = [];
     if ($path === '/') {
-        $router = 'index';
-    } elseif (preg_match('#^/(\w+)$#', $path, $matches)) {
+        return ['index', []];
+    } else {
+        foreach ($module_list as $module) {
+            list($router, $args) = _get_router("$module/", $path);
+            if ($router) {
+                return [strtolower("$module/$router"), $args];
+            }
+        }
+    }
+    list($router, $args) = _get_router("", $path);
+    if ($router) {
+        return [strtolower($router), $args];
+    }
+    return ['page404', []];
+}
+function _get_router($module, $path)
+{
+    $args = [];
+    if (preg_match('#^/'.$module.'([a-z][\w]*)/?$#i', $path, $matches)) {
         $router = $matches[1];
-    } elseif (preg_match('#^/(\w+)/(\d+)$#', $path, $matches)) {
+        return [$router, []];
+    } elseif (preg_match('#^/'.$module.'([a-z][\w]*)/(\w+)$#i', $path, $matches)) {
         $router = $matches[1];
         $args[] = $matches[2];
+        return [$router, $args];
     } else {
-        $router = 'page404';
+        return [false, false];
     }
-    return [$router, $args];
 }
+
+spl_autoload_register(function ($c) {
+    if (strpos($c, 'Occam\\') === 0) {
+        $f = __DIR__."/".substr($c, 6).".php";
+        require $f;
+    }
+});
